@@ -1,0 +1,63 @@
+---
+title: "Q1: Another Random Sample"
+output: 
+  github_document:
+    toc: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+theme_set(theme_classic(base_size = 14))
+```
+
+DeShawn is a lawyer. He works at a gigantic law firm with 100,000 lawyers. He was curious about the commute times of lawyers at his company, so he randomly selected 1,000 lawyers, sent them a survey asking them how long it takes them to get to work, and graphed the results:
+
+```{r}
+set.seed(2)
+
+make_commute_time_data <- function(mean){
+   data_frame(
+      commute_time = rnorm(1000, mean, 10) 
+   ) %>% 
+   mutate(
+      commute_time = ifelse(commute_time <= 5, 5, commute_time)
+   )
+}
+
+original_sample <- make_commute_time_data(mean = 20)
+
+original_sample %>% 
+   ggplot(aes(x = commute_time)) +
+   geom_histogram(bins = 40) +
+   labs(
+      x = "commute time (in minutes)",
+      y = "Count",
+      title = "Commute time for a random sample of lawyers"
+   )
+```
+
+DeShawn then took *another* random sample of 1000 lawyers at his company, sent them the new survey, and graphed the new results.
+
+**Which of the following graphs is most likely his new results?**
+
+```{r}
+bind_rows(
+   original_sample %>% mutate(option = "A"),
+   make_commute_time_data(mean = 40) %>% mutate(option = "B"),
+   make_commute_time_data(mean = 20) %>% mutate(option = "C"),
+   data_frame(commute_time = rlnorm(1000, log(25), log(2))) %>% 
+      mutate(
+         commute_time = ifelse(commute_time <= 5, 5, commute_time),
+         option = "D"
+      )
+) %>% 
+   ggplot(aes(x = commute_time)) +
+   geom_histogram(bins = 40) +
+   facet_wrap(~ option, scales = "free") +
+   labs(
+      x = "Commute time (in minutes)",
+      y = "Count",
+      title = expression(paste("Commute time for ", italic("another"), " random sample of lawyers"))
+   )
+```
